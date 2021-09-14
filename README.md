@@ -1,6 +1,6 @@
 # NumPuz
 
-<img src="README.assets/screenshot0.png" alt="screenshot0" style="zoom:50%;" />
+<img src="README.assets/numpuz_running.gif" alt="running" style="zoom:50%;" />
 
 **NumPuz** is a Simple number puzzle game written in Python with [pyxel](https://github.com/kitao/pyxel)
 
