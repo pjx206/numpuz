@@ -61,13 +61,13 @@ class App:
     def draw(self):
         pyxel.cls(1)
         self.draw_ui()
-        self.draw_map_squares()
+        self.draw_map_blocks()
 
     def draw_ui(self):
         pyxel.rect(*FRAME_POS, 5)  # frame background
         pyxel.rectb(*FRAME_POS, 9)  # frame
 
-    def draw_map_squares(self):
+    def draw_map_blocks(self):
         def get_block_pos(row, col):
             return BLOCKS_START[0] + col * BLOCK_SIZE + col + 1, BLOCKS_START[1] + row * BLOCK_SIZE + row + 1
 
