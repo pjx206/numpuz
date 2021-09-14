@@ -1,5 +1,6 @@
 import pyxel
 import numpy as np
+import sys
 
 BLOCK_SIZE = 9
 TEXT_HEIGHT = 6
@@ -9,7 +10,12 @@ FRAME_POS = (3 - FRAME_BORDER,
              4 * BLOCK_SIZE + FRAME_BORDER * 7,
              4 * BLOCK_SIZE + FRAME_BORDER * 7)
 BLOCKS_START = (FRAME_POS[0] + 1, FRAME_POS[1] + 1)  # frame border == 1
+DEBUG = True if len(sys.argv) > 1 and '-d' in sys.argv else False
 
+def log(*value, sep=' ', end='\n', file=sys.stdout, flush=False):
+    if not DEBUG:
+        return
+    print(*value, sep=sep, end=end, file=file, flush=flush)
 
 def get_map():
     blocks = np.arange(16, dtype='uint8')
@@ -23,7 +29,8 @@ class App:
         pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
                    FRAME_POS[2] + 2, caption="Number Puzzle")
         self.blocks, self.blank_pos = get_map()
-        print('[*] map info', self.blocks, self.blank_pos)
+        log('[*] map info', self.blocks)
+        log('[*] initial blank@', self.blank_pos, sep='')
         pyxel.load('./resource.pyxres')
         pyxel.run(self.update, self.draw)
 
@@ -56,7 +63,7 @@ class App:
         else:
             return
         self.blank_pos = row, col
-        print('[*] blank moved to', self.blank_pos)
+        log('[*] blank@', self.blank_pos, sep='')
 
     def draw(self):
         pyxel.cls(1)
