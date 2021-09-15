@@ -2,7 +2,7 @@ import pyxel
 import numpy as np
 import sys
 
-BLOCK_SIZE = 9
+BLOCK_SIZE = 20  # Minimum size recommended: 9
 TEXT_HEIGHT = 6
 FRAME_BORDER = 1  # TODO: write a func to extend pyxel.rectb() to support border size
 FRAME_POS = (3 - FRAME_BORDER,
@@ -90,13 +90,10 @@ class App:
                 val = self.blocks[i, j]
                 if val != 0:
                     x, y = get_block_pos(i, j)
-                    pyxel.blt(x, y, 0, 0, 0, BLOCK_SIZE, BLOCK_SIZE)
+                    pyxel.rect(x, y, BLOCK_SIZE, BLOCK_SIZE, 10)
                     off = get_best_text_pos_offset(val)
                     x_t, y_t = x + off[0], y + off[1]
                     pyxel.text(x_t, y_t, str(self.blocks[i, j]), 4)
-                else:
-                    pyxel.blt(*get_block_pos(i, j), 0, BLOCK_SIZE,
-                              0, BLOCK_SIZE, BLOCK_SIZE)
 
         pyxel.text(3, 1, "Numpuz", 8)
 
