@@ -91,20 +91,35 @@ class Game:
                     x_t, y_t = x + off[0], y + off[1]
                     pyxel.text(x_t, y_t, str(self.blocks[i, j]), 4)
 
+
+class Welcome:
+    def __init__(self):
         pyxel.text(3, 1, "Numpuz", 8)
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
+    def draw(self):
+        pyxel.cls(0)
+        pyxel.text(12, 20, "Numpuz", pyxel.frame_count % 16)
 
 class App:
     def __init__(self):
         pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
                    FRAME_POS[2] + 2, caption="Number Puzzle")
         pyxel.load('./resource.pyxres')
-        self.game = Game()
+        self.current = None
         pyxel.run(self.update, self.draw)
     
     def update(self):
-        self.game.update()
+        if self.current is None:
+            self.current = Welcome()
+        self.current.update()
+        if pyxel.btnr(pyxel.KEY_ENTER) and isinstance(self.current, Welcome):
+            self.current = Game()
     
     def draw(self):
-        self.game.draw()
+        self.current.draw()
 
 App()
