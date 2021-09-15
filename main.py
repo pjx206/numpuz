@@ -2,7 +2,7 @@ import pyxel
 import numpy as np
 import sys
 
-BLOCK_SIZE = 20  # Minimum size recommended: 9
+BLOCK_SIZE = 9  # Minimum size recommended: 9
 TEXT_HEIGHT = 6
 FRAME_BORDER = 1  # TODO: write a func to extend pyxel.rectb() to support border size
 FRAME_POS = (3 - FRAME_BORDER,
@@ -24,15 +24,11 @@ def get_map():
     return blocks.reshape((4, 4)), (pos0 // 4, pos0 % 4)
 
 
-class App:
+class Game:
     def __init__(self):
-        pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
-                   FRAME_POS[2] + 2, caption="Number Puzzle")
         self.blocks, self.blank_pos = get_map()
         log('[*] map info', self.blocks)
         log('[*] initial blank@', self.blank_pos, sep='')
-        pyxel.load('./resource.pyxres')
-        pyxel.run(self.update, self.draw)
 
     def update(self):
         self.update_blocks()
@@ -97,5 +93,18 @@ class App:
 
         pyxel.text(3, 1, "Numpuz", 8)
 
+class App:
+    def __init__(self):
+        pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
+                   FRAME_POS[2] + 2, caption="Number Puzzle")
+        pyxel.load('./resource.pyxres')
+        self.game = Game()
+        pyxel.run(self.update, self.draw)
+    
+    def update(self):
+        self.game.update()
+    
+    def draw(self):
+        self.game.draw()
 
 App()
