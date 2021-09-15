@@ -2,7 +2,8 @@ import pyxel
 import numpy as np
 import sys
 
-BLOCK_SIZE = 20  # Minimum size recommended: 9
+# TODO: Add config manager to save these information
+BLOCK_SIZE = 11  # Minimum size recommended: 9
 TEXT_HEIGHT = 6
 FRAME_BORDER = 1  # TODO: write a func to extend pyxel.rectb() to support border size
 FRAME_POS = (3 - FRAME_BORDER,
@@ -18,21 +19,22 @@ def log(*value, sep=' ', end='\n', file=sys.stdout, flush=False):
     print(*value, sep=sep, end=end, file=file, flush=flush)
 
 def get_map():
-    blocks = np.arange(16, dtype='uint8')
-    np.random.shuffle(blocks)
+    if DEBUG:
+        blocks = np.array(list(range(1, 16)) + [0])
+        blocks[-2], blocks[-1] = blocks[-1], blocks[-2]
+    else:
+        blocks = np.arange(16, dtype='uint8')
+        np.random.shuffle(blocks)
     pos0 = blocks.tolist().index(0)
     return blocks.reshape((4, 4)), (pos0 // 4, pos0 % 4)
 
 
-class App:
+class Game:
     def __init__(self):
-        pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
-                   FRAME_POS[2] + 2, caption="Number Puzzle")
         self.blocks, self.blank_pos = get_map()
+        self.step = 0
         log('[*] map info', self.blocks)
         log('[*] initial blank@', self.blank_pos, sep='')
-        pyxel.load('./resource.pyxres')
-        pyxel.run(self.update, self.draw)
 
     def update(self):
         self.update_blocks()
@@ -63,6 +65,7 @@ class App:
         else:
             return
         self.blank_pos = row, col
+        self.step += 1
         log('[*] blank@', self.blank_pos, sep='')
 
     def draw(self):
@@ -73,6 +76,7 @@ class App:
     def draw_ui(self):
         pyxel.rect(*FRAME_POS, 5)  # frame background
         pyxel.rectb(*FRAME_POS, 9)  # frame
+        pyxel.text(3, 1, 'step: {}'.format(self.step), 9)
 
     def draw_map_blocks(self):
         def get_block_pos(row, col):
@@ -81,9 +85,9 @@ class App:
         def get_best_text_pos_offset(v):
             # get best position to keep text in center
             if v > 9:
-                return [1, 2]
+                return [2, 3]
             else:
-                return [3, 2]
+                return [4, 3]
 
         for i in range(4):
             for j in range(4):
@@ -95,7 +99,72 @@ class App:
                     x_t, y_t = x + off[0], y + off[1]
                     pyxel.text(x_t, y_t, str(self.blocks[i, j]), 4)
 
+    @property
+    def status(self):
+        blocks: np.ndarray = self.blocks.reshape((16, 1))
+        if all([blocks[i] == i + 1 for i in range(15)]):
+            return 'WIN'
+        return 'RUNNING'
+
+
+class Welcome:
+    def __init__(self):
         pyxel.text(3, 1, "Numpuz", 8)
 
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
+    def draw(self):
+        pyxel.cls(0)
+        pyxel.text(16, 24, "Numpuz", pyxel.frame_count % 16)
+
+class Win:
+    def __init__(self):
+        self._status = 'DISPLAYING'
+        self.y = 50
+    
+    def update(self):
+        if pyxel.btnr(pyxel.KEY_ENTER):
+            self._status = 'GOBACK'
+        if pyxel.frame_count % 4 == 0:
+            self.y -= 4
+        if self.y < -10:
+            self._status = 'GOBACK'
+
+    def draw(self):
+        pyxel.cls(pyxel.frame_count % 7)
+        pyxel.text(20, self.y, 'Win~', 15)
+    
+    @property
+    def status(self):
+        return self._status
+
+
+class App:
+    def __init__(self):
+        pyxel.init(FRAME_POS[2] + 4, TEXT_HEIGHT + 2 +
+                   FRAME_POS[2] + 2, caption="Number Puzzle")
+        pyxel.load('./resource.pyxres')
+        self.current = None
+        pyxel.run(self.update, self.draw)
+    
+    def update(self):
+        if self.current is None:
+            self.current = Welcome()
+        elif isinstance(self.current, Welcome):
+            if pyxel.btnr(pyxel.KEY_ENTER) and isinstance(self.current, Welcome):
+                self.current = Game()            
+        elif  isinstance(self.current, Game):
+            if self.current.status == 'WIN':
+                self.current = Win()
+        elif isinstance(self.current, Win):
+            if self.current.status == 'GOBACK':
+                self.current = Welcome()
+
+        self.current.update()
+    
+    def draw(self):
+        self.current.draw()
 
 App()
