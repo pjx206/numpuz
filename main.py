@@ -76,7 +76,7 @@ class Game:
     def draw_ui(self):
         pyxel.rect(*FRAME_POS, 5)  # frame background
         pyxel.rectb(*FRAME_POS, 9)  # frame
-        pyxel.text(3, 1, 'step: {}'.format(self.step), 9)
+        pyxel.text(3, 1, f"step{'s' if self.step > 1 else ''}: {self.step}", 9)
 
     def draw_map_blocks(self):
         def get_block_pos(row, col):
